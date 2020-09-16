@@ -2,9 +2,14 @@ package com.example.demo.service;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,13 +25,14 @@ import com.example.demo.web.dto.UserRegistrationDto;
 @Service
 public class UserServiceImpl implements UserService{
 
+	@Autowired
 	private UserRepository userRepository;
-	
-	
+
+
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
-	
-	
+
+
 
 	public UserServiceImpl(UserRepository userRepository) {
 		super();
@@ -39,7 +45,7 @@ public class UserServiceImpl implements UserService{
 		User user = new User(registrationDto.getFirstName(), 
 				registrationDto.getLastName(), registrationDto.getEmail(),
 				passwordEncoder.encode(registrationDto.getPassword()), Arrays.asList(new Role("ROLE_USER")));
-		
+
 		return userRepository.save(user);
 	}
 
@@ -51,12 +57,44 @@ public class UserServiceImpl implements UserService{
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));		
-		
+
 	}
-	
+
 	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles){
 		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());	
 	}
 
+
+	@Override
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
+	}
+
+
+	@Override
+	public User getUserByID(long id) {
+		Optional<User> optinal = userRepository.findById(id);
+		User user = null;
+		if(optinal.isPresent()) {
+			user = optinal.get();
+		}else {
+			throw new RuntimeException("User Not Found!");
+		}
+		return user;
+
+	}
+
+
+	@Override
+	public void updateUser(User user) {
+		userRepository.save(user);
+	}
+
+
+	@Override
+	public void deleteUser(long id) {
+		userRepository.deleteById(id);
+		
+	}
 
 }

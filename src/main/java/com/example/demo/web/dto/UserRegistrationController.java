@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.UserService;
 
@@ -24,16 +23,16 @@ public class UserRegistrationController {
         return new UserRegistrationDto();
     }
 	
-	@GetMapping
+	@GetMapping()
 	public String showRegistrationForm() {
 		return "registration";
 	}
 
-	
 	@PostMapping
 	public String registerUerAccount(@ModelAttribute("user") UserRegistrationDto registrationDto) {
 		userService.save(registrationDto);
-		return "redirect:/registration?success";
+		return "redirect:/";
+//		return "redirect:/registration?success";
 	}
 	
 }
